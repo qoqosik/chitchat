@@ -1,0 +1,8 @@
+{
+  "name": "CozyDuo Chat",
+  "description": "A private, minimalist two-person chat application with a soft pastel aesthetic, designed for intimate and secure communication.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
