@@ -1,30 +1,36 @@
-
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+} from 'firebase/firestore';
+import { db } from '../firebase';
 import { Message, UserRole } from '../types';
 
-const STORAGE_KEY = 'cozyduo_history';
+const CHAT_ID = 'private-chat';
+
+const messagesRef = collection(db, 'chats', CHAT_ID, 'messages');
 
 export const chatService = {
-  getHistory: (): Message[] => {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+  subscribeToMessages(callback: (messages: Message[]) => void) {
+    const q = query(messagesRef, orderBy('timestamp'));
+
+    return onSnapshot(q, (snapshot) => {
+      const msgs: Message[] = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Omit<Message, 'id'>),
+      }));
+
+      callback(msgs);
+    });
   },
 
-  saveMessage: (text: string, sender: UserRole): Message => {
-    const newMessage: Message = {
-      id: crypto.randomUUID(),
-      sender,
+  async sendMessage(text: string, sender: UserRole) {
+    await addDoc(messagesRef, {
       text,
-      timestamp: Date.now()
-    };
-    
-    const history = chatService.getHistory();
-    const updatedHistory = [...history, newMessage];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
-    
-    return newMessage;
+      sender,
+      timestamp: Date.now(),
+    });
   },
-
-  clearHistory: () => {
-    localStorage.removeItem(STORAGE_KEY);
-  }
 };

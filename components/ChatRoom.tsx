@@ -16,16 +16,10 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ currentUser, onLogout }) => {
 
   // Initialize and poll for "real-time" feel (simulated for local storage)
   useEffect(() => {
-    setMessages(chatService.getHistory());
-    
-    // Simulate real-time by polling local storage
-    const interval = setInterval(() => {
-      const history = chatService.getHistory();
-      setMessages(history);
-    }, 1000);
+  const unsubscribe = chatService.subscribeToMessages(setMessages);
+  return () => unsubscribe();
+}, []);
 
-    return () => clearInterval(interval);
-  }, []);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -38,9 +32,9 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ currentUser, onLogout }) => {
     e.preventDefault();
     if (!inputText.trim()) return;
 
-    const newMessage = chatService.saveMessage(inputText, currentUser);
-    setMessages((prev) => [...prev, newMessage]);
+    chatService.sendMessage(inputText, currentUser);
     setInputText('');
+
   };
 
   const formatTime = (ts: number) => {
@@ -153,7 +147,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ currentUser, onLogout }) => {
           </button>
         </form>
         <p className="mt-2 text-center text-[10px] text-gray-300">
-          Only you two can see this conversation.
+          Only we can see this conversation🙂
         </p>
       </div>
     </div>

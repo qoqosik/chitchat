@@ -15,3 +15,5 @@ export const THEME = {
   bubbleB: 'bg-[#F3E5F5] text-[#5B3F6B]', // Lavender pastel
   accent: 'text-[#8EACCD]'
 };
+
+console.log('project:', import.meta.env.VITE_FIREBASE_PROJECT_ID);
